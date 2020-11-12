@@ -3,9 +3,6 @@ package dad.javafx.iniciosesion;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.stream.Stream;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -16,6 +13,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -25,7 +23,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.stage.Stage;
-import sun.java2d.pipe.BufferedBufImgOps;
 
 public class InicioSesion extends Application {
 
@@ -72,33 +69,31 @@ public class InicioSesion extends Application {
 		
 		accessButton.setOnAction(new EventHandler<ActionEvent>() {
 		
-			/**
-			 * TODO pulsar acceder valida y
-			 * llama al alert que toque crear alert class para validación si está bien
-			 * mensajito y terminará programa si está mal se elimina contenido de
-			 * passwdField pulsar cancelar cierra programa
-			 */
-			private Stream<String> csvStream;
 						
-			
 			public void handle(ActionEvent event) {
 				try {				
 				String passwordMD5 = DigestUtils.md5Hex(passwdText.getText()).toUpperCase();
-
-				File csvFile = new File("D:\\users.csv");
+				File csvFile = new File("users.csv");
 				FileReader fr = new FileReader(csvFile);
 				BufferedReader br = new BufferedReader(fr);
-				
-				
-				
-				
-				
-				}catch (Exception e) {
-					// TODO: handle exception
+		          String line;
+
+				while((line = br.readLine()) != null) {
+					String[] lines = line.split(",");
+					
+					if (lines[0].equals(userText.getText()) && lines[1].equals(passwordMD5)) {
+						AlertIniciarSesion.mostrarAlert(AlertType.INFORMATION, "Acceso permitido", "Las credenciales de acceso son válidas.");
+						br.close();
+					}
 				}
-				
-				
-				
+			
+			
+					AlertIniciarSesion.mostrarAlert(AlertType.ERROR, "Acceso denegado", "El usuario y/o contraseña no son válidos.");
+					passwdText.clear();
+			
+		
+				}catch (Exception e) {
+				}
 				
 				
 				
@@ -106,7 +101,7 @@ public class InicioSesion extends Application {
 			
 		});
 		
-		cancelButton.setOnAction(e -> Platform.exit());//crear metodo cerrar para cancel button y para cuando se validen los credenciales
+		cancelButton.setOnAction(e -> Platform.exit());
 	
 		
 		Scene scene = new Scene(root, 300, 250);
